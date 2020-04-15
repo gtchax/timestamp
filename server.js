@@ -30,29 +30,44 @@ app.get("/dreams", (request, response) => {
 
 app.get('/api/timestamp', (req, res) => {
   var date = new Date();
-  res.json({"unix": date.getTime(), "utc" : date.toUTCString() })
+  res.json({"unix": Date.now(), "utc" : Date() })
 })
 
-app.get('/api/timestamp/:date_string', (req, res) => {
-  let param = req.params.date_string;
-  var date = new Date(param);
-  let checkDate = date.toUTCString()
+// app.get('/api/timestamp/:date_string', (req, res) => {
+//   let param = req.params.date_string;
+//   var date = new Date(param);
+//   let checkDate = date.toUTCString()
   
-  if(checkDate === 'Invalid Date') {
-    date = new Date(param*1000)
-    if(date.toUTCString() === 'Invalid Date') {
-      return res.json({"error": "Invalid Date" })
-    } else {
-      return res.json({"unix": date.getTime(), "utc" : date.toUTCString()})
-    }
+//   if(checkDate === 'Invalid Date') {
+//     date = new Date(param*1000)
+//     if(date.toUTCString() === 'Invalid Date') {
+//       return res.json({"error": "Invalid Date" })
+//     } else {
+//       return res.json({"unix": date.getTime(), "utc" : date.toUTCString()})
+//     }
     
+//   }
+//   res.json({"unix": date.getTime(), "utc": date.toUTCString()})
+  
+// })
+
+app.get("/api/timestamp/:date_string", (req, res) => {
+  let dateString = req.params.date_string;
+
+  
+  if (/\d{5,}/.test(dateString)) {
+    var dateInt = parseInt(dateString);
+    res.json({ unix: dateString, utc: new Date(dateInt).toUTCString() });
   }
-  res.json({"unix": date.getTime(), "utc": date.toUTCString()})
-   
-    
-  
-  
-})
+
+  let dateObject = new Date(dateString);
+
+  if (dateObject.toString() === "Invalid Date") {
+    res.json({ error: "Invaid Date" });
+  } else {
+    res.json({ unix: dateObject.valueOf(), utc: dateObject.toUTCString() });
+  }
+});
 
 // listen for requests :)
 const listener = app.listen(process.env.PORT, () => {
